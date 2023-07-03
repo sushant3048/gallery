@@ -1,0 +1,21 @@
+.page-like{
+    background: rgba(40, 40, 40);
+    padding:0 10px;
+    border-radius: 5px;
+}
+.page-like-count {
+    color: white;
+}
+
+.image-like{
+    position:absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:lightgrey;
+    border-radius: 15px;
+}
+/* 
+.main-view img{
+    transition: 1.6s ease;
+} */
