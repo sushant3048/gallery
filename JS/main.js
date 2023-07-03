@@ -279,9 +279,12 @@ function renderImageView() {
     var scale = 1;
 
     // on mouse move shift the transform origin to the mouse position.
-    // imgItem.onmousemove = function (event) {
-    //     imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
-    // }
+    imgItem.onmousemove = function (event) {
+        if (scale == 1) {
+            imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
+        }
+
+    }
     // zoom on mouse wheel keeping the cursor in the same place.
     imgItem.onwheel = function (event) {
         event.preventDefault();
@@ -304,21 +307,28 @@ function renderImageView() {
     }
     ///////////////////////////
     // pan on mouse drag.
-
-    // first handle mouse down to start the drag
-    var ismousedown = false;
     imgItem.onmousedown = function (event) {
-        // on mouse down, record the mouse position and the current transform
-        var mouseDownX = event.clientX;
-        var mouseDownY = event.clientY;
+        x0 = event.clientX;
+        y0 = event.clientY;
+        imgItem.onmousemove = function (event) {
+            x1 = event.clientX;
+            y1 = event.clientY;
+            dx = x1 - x0;
+            dy = y1 - y0;
+            // if (Math.abs(dx) > imgItem.width * scale - imgItem.width) dx = 0;
+            // if (Math.abs(dy) > imgItem.height * scale - imgItem.height) dy = 0;
+            imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
+            imgItem.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
+        }
     }
-    // on mouse move, calculate the new transform
-    imgItem.onmousemove = function (event) {
-        var offsetX = event.clientX - mouseDownX;
-        var offsetY = event.clientY - mouseDownY;
+    imgItem.onmouseup = function (event) {
+        imgItem.onmousemove = null;
+    }
 
-        imgItem.style.transform = `translate(${offsetX - mouseDownX}px, ${offsetY - mouseDownY}px) scale(${scale})`;
+    imgItem.onmouseleave = function (event) {
+        imgItem.onmousemove = null;
     }
+
     //////////////////////////
 
     g_imageView.querySelector('.page-name').innerHTML = g_currentPage;
