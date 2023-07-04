@@ -6,7 +6,7 @@
 //////////////// CONFIGS //////////////////////////
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
-var noImage = true;
+var noImage = false;
 // var noImage = false;
 // only place-holders
 var limit = 0;
@@ -280,7 +280,7 @@ function renderImageView() {
 
     // on mouse move shift the transform origin to the mouse position.
     imgItem.onmousemove = function (event) {
-        imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
+        shiftOrigin(imgItem, event);
     }
 
     // zoom on mouse wheel keeping the cursor in the same place.
@@ -288,7 +288,7 @@ function renderImageView() {
         event.preventDefault();
         scale += event.deltaY * -0.01;
         scale = Math.min(Math.max(1, scale), 10);
-        imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
+        shiftOrigin(imgItem, event);
         imgItem.style.transform = `scale(${scale})`;
     }
 
@@ -300,7 +300,7 @@ function renderImageView() {
         else {
             scale = 5;
         }
-        imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
+        shiftOrigin(imgItem, event);
         imgItem.style.transform = `scale(${scale})`;
     }
 
@@ -312,6 +312,49 @@ function renderImageView() {
     if (g_sideNavActive) {
         setTimeout(navSelect, 0);
     }
+}
+
+
+function shiftOrigin(ele, event) {
+    // This method shifts the transform origin of the image to the mouse position.
+    // Sticks to the corner if it is close. 
+    
+    // Get width and height of the image.
+    let w = ele.offsetWidth;
+    let h = ele.offsetHeight;
+    // define cordinates of four corners and center.
+    let leftTop = { x: 0, y: 0 };
+    let rightTop = { x: w, y: 0 };
+    let leftBottom = { x: 0, y: h };
+    let rightBottom = { x: w, y: h };
+    let center = { x: w / 2, y: h / 2 };
+
+    // Get the mouse position relative to the image.
+    let x = event.offsetX;
+    let y = event.offsetY;
+
+    // Find the closest corner to the mouse position.
+    let corners = [leftTop, rightTop, leftBottom, rightBottom];
+    let distances = corners.map(corner => {
+        return Math.sqrt((corner.x - x) ** 2 + (corner.y - y) ** 2);
+    })
+    let min = Math.min(...distances);
+    let minIndex = distances.indexOf(min);
+    let closestCorner = corners[minIndex];
+
+    let xT = 0;
+    let yT = 0;
+    // shift the transform origin to the closest corner if it is within 25% of the dimensions else shift to the cursor position.
+    if (min < w / 4) {
+        xT = closestCorner.x;
+        yT = closestCorner.y;
+    }
+    else {
+        xT = x;
+        yT = y;
+    }
+    // Apply the origin shift.
+    ele.style.transformOrigin = `${xT}px ${yT}px 0px`;
 }
 
 function createImage(obj) {
