@@ -280,11 +280,9 @@ function renderImageView() {
 
     // on mouse move shift the transform origin to the mouse position.
     imgItem.onmousemove = function (event) {
-        if (scale == 1) {
-            imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
-        }
-
+        imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
     }
+
     // zoom on mouse wheel keeping the cursor in the same place.
     imgItem.onwheel = function (event) {
         event.preventDefault();
@@ -305,31 +303,7 @@ function renderImageView() {
         imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
         imgItem.style.transform = `scale(${scale})`;
     }
-    ///////////////////////////
-    // pan on mouse drag.
-    imgItem.onmousedown = function (event) {
-        x0 = event.clientX;
-        y0 = event.clientY;
-        imgItem.onmousemove = function (event) {
-            x1 = event.clientX;
-            y1 = event.clientY;
-            dx = x1 - x0;
-            dy = y1 - y0;
-            // if (Math.abs(dx) > imgItem.width * scale - imgItem.width) dx = 0;
-            // if (Math.abs(dy) > imgItem.height * scale - imgItem.height) dy = 0;
-            imgItem.style.transformOrigin = `${event.offsetX}px ${event.offsetY}px 0px`;
-            imgItem.style.transform = `translate(${dx}px, ${dy}px) scale(${scale})`;
-        }
-    }
-    imgItem.onmouseup = function (event) {
-        imgItem.onmousemove = null;
-    }
 
-    imgItem.onmouseleave = function (event) {
-        imgItem.onmousemove = null;
-    }
-
-    //////////////////////////
 
     g_imageView.querySelector('.page-name').innerHTML = g_currentPage;
     g_imageView.querySelector('.image-sl').innerHTML = `${sl + 1} / ${g_pageBuffer.length}`
