@@ -316,45 +316,68 @@ function renderImageView() {
 
 
 function shiftOrigin(ele, event) {
-    // This method shifts the transform origin of the image to the mouse position.
-    // Sticks to the corner if it is close. 
-    
-    // Get width and height of the image.
-    let w = ele.offsetWidth;
-    let h = ele.offsetHeight;
-    // define cordinates of four corners and center.
-    let leftTop = { x: 0, y: 0 };
-    let rightTop = { x: w, y: 0 };
-    let leftBottom = { x: 0, y: h };
-    let rightBottom = { x: w, y: h };
-    let center = { x: w / 2, y: h / 2 };
 
-    // Get the mouse position relative to the image.
+    // This method will shift the transform origin to the mouse position. But if any of the four sides of the image is closer than threshold, it will shift the origin to that side.
+
+    // define the threshold as fraction.
+    let threshold = 0.2;
+
+    // get the mouse position relative to the image.
     let x = event.offsetX;
     let y = event.offsetY;
 
-    // Find the closest corner to the mouse position.
-    let corners = [leftTop, rightTop, leftBottom, rightBottom];
-    let distances = corners.map(corner => {
-        return Math.sqrt((corner.x - x) ** 2 + (corner.y - y) ** 2);
-    })
-    let min = Math.min(...distances);
-    let minIndex = distances.indexOf(min);
-    let closestCorner = corners[minIndex];
+    // get the image dimensions.
+    let w = ele.offsetWidth;
+    let h = ele.offsetHeight;
 
-    let xT = 0;
-    let yT = 0;
-    // shift the transform origin to the closest corner if it is within 25% of the dimensions else shift to the cursor position.
-    if (min < w / 4) {
-        xT = closestCorner.x;
-        yT = closestCorner.y;
+    // get the mouse position relative to the image as a percentage.
+    let xP = x / w;
+    let yP = y / h;
+
+    // get the distance of the mouse from the four sides of the image.
+    let xD = Math.min(xP, 1 - xP);
+    let yD = Math.min(yP, 1 - yP);
+
+    // define transform origin to be the mouse position.
+    let xT = x;
+    let yT = y;
+
+    // check if the mouse is closer to any of the four sides of the image.
+    if (xD < threshold) {
+        // if the mouse is closer to the left or right side, shift the origin to the left or right side.
+        xT = x < w / 2 ? 0 : w;
     }
-    else {
-        xT = x;
-        yT = y;
+    if (yD < threshold) {
+        // if the mouse is closer to the top or bottom side, shift the origin to the top or bottom side.
+        yT = y < h / 2 ? 0 : h;
     }
-    // Apply the origin shift.
-    ele.style.transformOrigin = `${xT}px ${yT}px 0px`;
+
+    // apply the transform origin.
+    ele.style.transformOrigin = `${xT}px ${yT}px`;
+
+    // For debudding purpose. Draw a circle at the transform origin.
+
+    let circle = document.querySelector('.circle');
+    if (!circle) {
+        circle = document.createElement('div');
+        circle.classList.add('circle');
+        // Define styles for the circle.
+        circle.style.borderRadius = '50%';
+        circle.style.width = '10px';
+        circle.style.height = '10px';
+        circle.style.position = 'absolute';
+        circle.style.zIndex = '1000';
+        circle.style.pointerEvents = 'none';
+        circle.style.backgroundColor = 'red';
+    }
+    circle.style.left = `${xT}px`;
+    circle.style.top = `${yT}px`;
+
+    // Add the circle to parent of the image but before that positin the parent relative.
+    ele.parentElement.style.position = 'relative';
+    ele.parentElement.appendChild(circle);
+
+    
 }
 
 function createImage(obj) {
