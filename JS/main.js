@@ -7,7 +7,7 @@
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
 
-var noImage = false;
+var noImage = true;
 
 // only place-holders
 var limit = 0;
@@ -252,7 +252,7 @@ function renderPageView(page = g_currentPage) {
     }
 }
 
-
+var scale = 1;
 function renderImageView() {
 
     g_currentView = 'image';
@@ -277,11 +277,11 @@ function renderImageView() {
     let imgItem = t.querySelector('.img-item');
 
 
-    var scale = 1;
+
 
     // on mouse move shift the transform origin to the mouse position.
     imgItem.onmousemove = function (event) {
-        handleMouseEvent(imgItem, event);
+        shiftOrigin(imgItem, event);
     }
 
     // onmouseleave shift the transform origin to the edge where the mouse left. This improves the panning experience when the mouse leaves the image quickly.
@@ -295,8 +295,14 @@ function renderImageView() {
         event.preventDefault();
         scale += event.deltaY * -0.01;
         scale = Math.min(Math.max(1, scale), 10);
-        handleMouseEvent(imgItem, event);
+        shiftOrigin(imgItem, event);
         imgItem.style.transform = `scale(${scale})`;
+    }
+
+    // Handle mouseLeave event.
+    function handleMouseLeave(ele, event) {
+        // shift the origin to the edge towards which the mouse left.
+
     }
 
     // zoom toggle on double click.
@@ -307,7 +313,7 @@ function renderImageView() {
         else {
             scale = 5;
         }
-        handleMouseEvent(imgItem, event);
+        shiftOrigin(imgItem, event);
         imgItem.style.transform = `scale(${scale})`;
     }
 
@@ -322,7 +328,7 @@ function renderImageView() {
 }
 
 
-function handleMouseEvent(ele, event) {
+function shiftOrigin(ele, event) {
 
     // This method will shift the transform origin to the mouse position. But if any of the four sides of the image is closer than threshold, it will shift the origin to that side.
 
@@ -358,17 +364,6 @@ function handleMouseEvent(ele, event) {
         // if the mouse is closer to the top or bottom side, shift the origin to the top or bottom side.
         yT = y < h / 2 ? 0 : h;
     }
-
-   shiftOrigin(ele, xT, yT);
-}
-
-// Handle mouseLeave event.
-function handleMouseLeave(ele, event) {
-    // shift the origin to the edge towards which the mouse left.
-
-}
-
-function shiftOrigin(ele, xT, yT) {
     // apply the transform origin.
     ele.style.transformOrigin = `${xT}px ${yT}px`;
 
