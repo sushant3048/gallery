@@ -6,8 +6,9 @@
 //////////////// CONFIGS //////////////////////////
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
-// var noImage = false;
-var noImage = true;
+
+var noImage = false;
+
 // only place-holders
 var limit = 0;
 // limit = 10 ** 4;
