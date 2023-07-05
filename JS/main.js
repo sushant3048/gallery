@@ -6,8 +6,8 @@
 //////////////// CONFIGS //////////////////////////
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
-var noImage = false;
 // var noImage = false;
+var noImage = true;
 // only place-holders
 var limit = 0;
 // limit = 10 ** 4;
@@ -280,7 +280,13 @@ function renderImageView() {
 
     // on mouse move shift the transform origin to the mouse position.
     imgItem.onmousemove = function (event) {
-        shiftOrigin(imgItem, event);
+        handleMouseEvent(imgItem, event);
+    }
+
+    // onmouseleave shift the transform origin to the edge where the mouse left. This improves the panning experience when the mouse leaves the image quickly.
+    imgItem.onmouseleave = function (event) {
+        console.log('mouse leave');
+        handleMouseLeave(imgItem, event);
     }
 
     // zoom on mouse wheel keeping the cursor in the same place.
@@ -288,7 +294,7 @@ function renderImageView() {
         event.preventDefault();
         scale += event.deltaY * -0.01;
         scale = Math.min(Math.max(1, scale), 10);
-        shiftOrigin(imgItem, event);
+        handleMouseEvent(imgItem, event);
         imgItem.style.transform = `scale(${scale})`;
     }
 
@@ -300,7 +306,7 @@ function renderImageView() {
         else {
             scale = 5;
         }
-        shiftOrigin(imgItem, event);
+        handleMouseEvent(imgItem, event);
         imgItem.style.transform = `scale(${scale})`;
     }
 
@@ -315,7 +321,7 @@ function renderImageView() {
 }
 
 
-function shiftOrigin(ele, event) {
+function handleMouseEvent(ele, event) {
 
     // This method will shift the transform origin to the mouse position. But if any of the four sides of the image is closer than threshold, it will shift the origin to that side.
 
@@ -352,6 +358,16 @@ function shiftOrigin(ele, event) {
         yT = y < h / 2 ? 0 : h;
     }
 
+   shiftOrigin(ele, xT, yT);
+}
+
+// Handle mouseLeave event.
+function handleMouseLeave(ele, event) {
+    // shift the origin to the edge towards which the mouse left.
+
+}
+
+function shiftOrigin(ele, xT, yT) {
     // apply the transform origin.
     ele.style.transformOrigin = `${xT}px ${yT}px`;
 
@@ -376,9 +392,9 @@ function shiftOrigin(ele, event) {
     // Add the circle to parent of the image but before that positin the parent relative.
     ele.parentElement.style.position = 'relative';
     ele.parentElement.appendChild(circle);
-
-    
 }
+
+
 
 function createImage(obj) {
     let img = document.createElement("img");
