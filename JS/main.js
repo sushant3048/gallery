@@ -7,7 +7,7 @@
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
 
-var noImage = true;
+var noImage = false;
 
 // only place-holders
 var limit = 0;
@@ -273,122 +273,181 @@ function renderImageView() {
     let img = createImage(item);
     img.setAttribute('sl', sl)
 
-    t = imageContainer.appendChild(img);
-    let imgItem = t.querySelector('.img-item');
 
+    imageContainer.appendChild(img);
+    // Image natural size, display size, position and scale.
+    let nw, nh, w, h, posX, posY, scale = 1;
 
+    // Anchor position
+    let ax, ay;
 
+    img.onload = function (e) {
+        // get original size of the image.
+        nw = img.naturalWidth;
+        nh = img.naturalHeight;
 
-    // on mouse move shift the transform origin to the mouse position.
-    imgItem.onmousemove = function (event) {
-        shiftOrigin(imgItem, event);
-    }
+        // get display size of the image
+        w = img.offsetWidth;
+        h = img.offsetHeight;
 
-    // onmouseleave shift the transform origin to the edge where the mouse left. This improves the panning experience when the mouse leaves the image quickly.
-    imgItem.onmouseleave = function (event) {
-        console.log('mouse leave');
-        handleMouseLeave(imgItem, event);
-    }
+        // get initial position
+        posX = img.offsetLeft;
+        posY = img.offsetTop;
 
-    // zoom on mouse wheel keeping the cursor in the same place.
-    imgItem.onwheel = function (event) {
-        event.preventDefault();
-        scale += event.deltaY * -0.01;
-        scale = Math.min(Math.max(1, scale), 10);
-        shiftOrigin(imgItem, event);
-        imgItem.style.transform = `scale(${scale})`;
-    }
-
-    // Handle mouseLeave event.
-    function handleMouseLeave(ele, event) {
-        // shift the origin to the edge towards which the mouse left.
+        ax = Math.floor(w / 2);
+        ay = Math.floor(h / 2);
 
     }
 
-    // zoom toggle on double click.
-    imgItem.ondblclick = function (event) {
-        if (scale > 1) {
-            scale = 1;
+
+    // get the container size and position.
+    let cw = imageContainer.offsetWidth;
+    let ch = imageContainer.offsetHeight;
+
+    // img to pan on mouse drag.
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    img.onmousedown = function (e) {
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+    }
+
+
+    img.onmousemove = function (e) {
+
+        // get cursor position relative to the image.
+        let x = e.offsetX;
+        let y = e.offsetY;
+
+        // displayDebugBox(x, y);
+
+        // Dragging and panning
+        if (e.buttons == 1) {
+            // console.log(event)
+            let x = e.clientX;
+            let y = e.clientY;
+
+            let dx = x - dragStartX;
+            let dy = y - dragStartY;
+            console.log('drags:', dx, dy);
+
+            // Reset for next event
+            dragStartX = x;
+            dragStartY = y;
+
+            posX += Math.floor(dx);
+            posY += Math.floor(dy);
+
+            // Apply new position
+            translate();
         }
-        else {
-            scale = 5;
-        }
-        shiftOrigin(imgItem, event);
-        imgItem.style.transform = `scale(${scale})`;
+    }
+
+    img.onwheel = function (e) {
+        e.preventDefault();
+
+        scale += e.deltaY * -0.001;
+        scale = Math.min(Math.max(0.5, scale), 10);
+
+
+        // get cursor position relative to the image.
+        let x = e.offsetX;
+        let y = e.offsetY;
+
+        // Get position of the image
+        let ix = img.offsetLeft;
+        let iy = img.offsetTop;
+
+        // Get diaplay size of the image
+        let w = img.offsetWidth;
+        let h = img.offsetHeight;
+
+        // covert this to fraction
+        let fx = x / w;
+        let fy = y / h;
+
+        // if cursor is too close to the edge, set the anchor to the edge.
+        let th = 0.1;
+        if (fx < th) fx = 0;
+        if (fx > 1 - th) fx = 1;
+        if (fy < th) fy = 0;
+        if (fy > 1 - th) fy = 1;
+
+
+        // Apply scale
+        img.style.width = `${nw * scale}px`
+        img.style.height = `${nh * scale}px`
+
+        // get new size
+        w1 = img.offsetWidth;
+        h1 = img.offsetHeight;
+
+        // Calculate new position so that cursor remains at the same position.
+        posX = ix - (w1 - w) * fx;
+        posY = iy - (h1 - h) * fy;
+
+        // Apply new position
+        img.style.left = `${posX}px`;
+        img.style.top = `${posY}px`;
+
+        imgCenterCorrection();
     }
 
 
-    g_imageView.querySelector('.page-name').innerHTML = g_currentPage;
-    g_imageView.querySelector('.image-sl').innerHTML = `${sl + 1} / ${g_pageBuffer.length}`
-    g_pageView.querySelector('.page-name').innerHTML = page;
 
-    if (g_sideNavActive) {
-        setTimeout(navSelect, 0);
+    // This method cnters the dimension which is smaller than the container.
+    function imgCenterCorrection() {
+        // get the image size
+        let w = img.offsetWidth;
+        let h = img.offsetHeight;
+
+        // get the container size
+        let cw = imageContainer.offsetWidth;
+        let ch = imageContainer.offsetHeight;
+
+        // check if width is smaller than the container
+        if (w < cw) {
+            posX = (cw - w) / 2;
+        }
+
+        // check if height is smaller than the container
+        if (h < ch) {
+            posY = (ch - h) / 2;
+        }
+
+        img.style.left = `${posX}px`;
+        img.style.top = `${posY}px`;
+    }
+
+
+
+    function displayDebugBox(cX, cY) {
+
+        // Display a small info box
+        let imgInfoBox = imageContainer.querySelector('.imgInfoBox');
+        if (!imgInfoBox) {
+            imgInfoBox = document.createElement('div');
+            imgInfoBox.classList.add('imgInfoBox');
+            imageContainer.appendChild(imgInfoBox);
+        }
+        // Get diaplay size of the image
+        let w = img.offsetWidth;
+        let h = img.offsetHeight;
+
+        scale = w / nw;
+
+        // get image position relative to the container
+        let ix = img.offsetLeft;
+        let iy = img.offsetTop;
+
+        // Update values of the imgInfoBox
+        imgInfoBox.innerHTML = `${cX},${cY}<hr> orig:${nw}x${nh}<hr> disp:${w}x${h} <hr> scale:${scale} <hr>pos:${posX},${posY}`;
     }
 }
 
 
-function shiftOrigin(ele, event) {
 
-    // This method will shift the transform origin to the mouse position. But if any of the four sides of the image is closer than threshold, it will shift the origin to that side.
-
-    // define the threshold as fraction.
-    let threshold = 0.2;
-
-    // get the mouse position relative to the image.
-    let x = event.offsetX;
-    let y = event.offsetY;
-
-    // get the image dimensions.
-    let w = ele.offsetWidth;
-    let h = ele.offsetHeight;
-
-    // get the mouse position relative to the image as a percentage.
-    let xP = x / w;
-    let yP = y / h;
-
-    // get the distance of the mouse from the four sides of the image.
-    let xD = Math.min(xP, 1 - xP);
-    let yD = Math.min(yP, 1 - yP);
-
-    // define transform origin to be the mouse position.
-    let xT = x;
-    let yT = y;
-
-    // check if the mouse is closer to any of the four sides of the image.
-    if (xD < threshold) {
-        // if the mouse is closer to the left or right side, shift the origin to the left or right side.
-        xT = x < w / 2 ? 0 : w;
-    }
-    if (yD < threshold) {
-        // if the mouse is closer to the top or bottom side, shift the origin to the top or bottom side.
-        yT = y < h / 2 ? 0 : h;
-    }
-    // apply the transform origin.
-    ele.style.transformOrigin = `${xT}px ${yT}px`;
-
-    // For debudding purpose. Draw a circle at the transform origin.
-
-    let circle = document.querySelector('.circle');
-    if (!circle) {
-        circle = document.createElement('div');
-        circle.classList.add('circle');
-        // Define styles for the circle.
-        circle.style.borderRadius = '50%';
-        circle.style.width = '10px';
-        circle.style.height = '10px';
-        circle.style.position = 'absolute';
-        circle.style.zIndex = '1000';
-        circle.style.pointerEvents = 'none';
-        circle.style.backgroundColor = 'red';
-    }
-    circle.style.left = `${xT}px`;
-    circle.style.top = `${yT}px`;
-
-    // Add the circle to parent of the image but before that positin the parent relative.
-    ele.parentElement.style.position = 'relative';
-    ele.parentElement.appendChild(circle);
-}
 
 
 
@@ -400,19 +459,12 @@ function createImage(obj) {
         img.src = `../assets/placeholders/graph.jpg`;
     }
 
-    // img.setAttribute('person', obj.person)
-    // img.setAttribute('loading', 'lazy');
+    img.setAttribute('person', obj.person)
+    img.setAttribute('loading', 'lazy');
     img.setAttribute('page', obj.page);
     img.classList.add('img-item');
-    let imgCont = document.createElement('div');
-    imgCont.classList.add('img-cont');
-    imgCont.appendChild(img);
-    imgCont.setAttribute('page', obj.page);
-    // let temp = document.querySelector('template');
-    // let clone = temp.content.cloneNode(true);
-    // imgCont.appendChild(clone);
 
-    return imgCont;
+    return img;
 }
 
 

@@ -15,6 +15,15 @@
     background:lightgrey;
     border-radius: 15px;
 }
+
+
+.imgInfoBox{
+    background:yellow;
+    color:black;
+    padding:5px;
+    position:absolute;
+    z-index: 1000;
+}
 /* 
 .main-view img{
     transition: 1.6s ease;
