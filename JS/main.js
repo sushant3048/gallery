@@ -7,7 +7,7 @@
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
 
-var noImage = false;
+var noImage = true;
 
 // only place-holders
 var limit = 0;
@@ -252,8 +252,9 @@ function renderPageView(page = g_currentPage) {
     }
 }
 
-var scale = 1;
+var scaleFactor = 1;
 function renderImageView() {
+
 
     g_currentView = 'image';
 
@@ -268,6 +269,9 @@ function renderImageView() {
 
     let imageContainer = g_imageView.querySelector('.image-container');
     imageContainer.replaceChildren();
+    imageContainer.onwheel = function (e) {
+        e.preventDefault();
+    }
     let item = g_pageBuffer[sl];
     let page = item.page;
     let img = createImage(item);
@@ -276,10 +280,13 @@ function renderImageView() {
 
     imageContainer.appendChild(img);
     // Image natural size, display size, position and scale.
-    let nw, nh, w, h, posX, posY, scale = 1;
+    let nw, nh, w, h, posX, posY, scaleFactor;
 
-    // Anchor position
-    let ax, ay;
+    // Initial position of the edges of the image.
+    let initialLeft, initialRight, initialTop, initialBottom;
+
+    // initial scale
+    let initialScaleFactor = 1;
 
     img.onload = function (e) {
         // get original size of the image.
@@ -294,9 +301,15 @@ function renderImageView() {
         posX = img.offsetLeft;
         posY = img.offsetTop;
 
-        ax = Math.floor(w / 2);
-        ay = Math.floor(h / 2);
+        // save initial position of the edges of the image.
+        initialLeft = img.offsetLeft;
+        initialRight = img.offsetLeft + w;
+        initialTop = img.offsetTop;
+        initialBottom = img.offsetTop + h;
 
+        // Save scale and initial scale
+        scaleFactor = w / nw;
+        initialScaleFactor = scaleFactor;
     }
 
 
@@ -330,7 +343,6 @@ function renderImageView() {
 
             let dx = x - dragStartX;
             let dy = y - dragStartY;
-            console.log('drags:', dx, dy);
 
             // Reset for next event
             dragStartX = x;
@@ -346,15 +358,27 @@ function renderImageView() {
 
     img.onwheel = function (e) {
         e.preventDefault();
+        e.stopPropagation();
 
-        scale += e.deltaY * -0.001;
-        scale = Math.min(Math.max(0.5, scale), 10);
+        scaleFactor += e.deltaY * -0.001;
+        scaleFactor = Math.min(Math.max(initialScaleFactor, scaleFactor), 10);
 
+        // Get diaplay size of the image
+        let w = img.offsetWidth;
+        let h = img.offsetHeight;
 
         // get cursor position relative to the image.
         let x = e.offsetX;
         let y = e.offsetY;
 
+        // covert this to fraction
+        let fx = x / w;
+        let fy = y / h;
+
+        scale(fx, fy);
+    }
+
+    function scale(fx = 0.5, fy = 0.5) {
         // Get position of the image
         let ix = img.offsetLeft;
         let iy = img.offsetTop;
@@ -362,10 +386,6 @@ function renderImageView() {
         // Get diaplay size of the image
         let w = img.offsetWidth;
         let h = img.offsetHeight;
-
-        // covert this to fraction
-        let fx = x / w;
-        let fy = y / h;
 
         // if cursor is too close to the edge, set the anchor to the edge.
         let th = 0.1;
@@ -376,8 +396,8 @@ function renderImageView() {
 
 
         // Apply scale
-        img.style.width = `${nw * scale}px`
-        img.style.height = `${nh * scale}px`
+        img.style.width = `${nw * scaleFactor}px`
+        img.style.height = `${nh * scaleFactor}px`
 
         // get new size
         w1 = img.offsetWidth;
@@ -388,16 +408,17 @@ function renderImageView() {
         posY = iy - (h1 - h) * fy;
 
         // Apply new position
-        img.style.left = `${posX}px`;
-        img.style.top = `${posY}px`;
-
-        imgCenterCorrection();
+        translate();
+        // imgCenterCorrection();
     }
 
+    // Prevent scrolling on wheel.
+    imageContainer.onwheel = function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
 
-
-    // This method cnters the dimension which is smaller than the container.
-    function imgCenterCorrection() {
+    function translate() {
         // get the image size
         let w = img.offsetWidth;
         let h = img.offsetHeight;
@@ -406,44 +427,20 @@ function renderImageView() {
         let cw = imageContainer.offsetWidth;
         let ch = imageContainer.offsetHeight;
 
-        // check if width is smaller than the container
-        if (w < cw) {
-            posX = (cw - w) / 2;
-        }
+        // Prevent image edges from shifting inwards from the initial position.
+        if (posX > initialLeft) posX = initialLeft;
+        if (posX + w < initialRight) posX = initialRight - w;
+        if (posY > initialTop) posY = initialTop;
+        if (posY + h < initialBottom) posY = initialBottom - h;
 
-        // check if height is smaller than the container
-        if (h < ch) {
-            posY = (ch - h) / 2;
-        }
+        // If the width of the image is smaller than the container, center it.
+        if (w < cw) posX = (cw - w) / 2;
+
 
         img.style.left = `${posX}px`;
         img.style.top = `${posY}px`;
     }
 
-
-
-    function displayDebugBox(cX, cY) {
-
-        // Display a small info box
-        let imgInfoBox = imageContainer.querySelector('.imgInfoBox');
-        if (!imgInfoBox) {
-            imgInfoBox = document.createElement('div');
-            imgInfoBox.classList.add('imgInfoBox');
-            imageContainer.appendChild(imgInfoBox);
-        }
-        // Get diaplay size of the image
-        let w = img.offsetWidth;
-        let h = img.offsetHeight;
-
-        scale = w / nw;
-
-        // get image position relative to the container
-        let ix = img.offsetLeft;
-        let iy = img.offsetTop;
-
-        // Update values of the imgInfoBox
-        imgInfoBox.innerHTML = `${cX},${cY}<hr> orig:${nw}x${nh}<hr> disp:${w}x${h} <hr> scale:${scale} <hr>pos:${posX},${posY}`;
-    }
 }
 
 
