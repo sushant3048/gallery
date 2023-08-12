@@ -7,7 +7,7 @@
 var env = 1
 // {0:mac, 1: home/office, 100:prod }
 
-var noImage = true;
+var noImage = false;
 
 // only place-holders
 var limit = 0;
@@ -45,6 +45,7 @@ var g_likes = null
 var g_mainView = document.querySelector('.main-view');
 var g_pageView = document.querySelector('.page-view');
 var g_imageView = document.querySelector('.image-view');
+let pageSearch = document.querySelector('#page-search');
 
 
 
@@ -128,14 +129,8 @@ function appEntry() {
         .catch(error => console.error(error));
 
     ///////////// event listeners /////////////////////////////////
-    let pageSearch = document.querySelector('#page-search');
     pageSearch.addEventListener('input', e => {
-        let val = e.currentTarget.value;
-        document.querySelector('.search-icon').innerHTML = "close"
-        if (val.length = 0) {
-            document.querySelector('.search-icon').innerHTML = "close"
-        }
-        createNavItems(val)
+        handlePageSearch();
     })
     document.addEventListener('keydown', e => {
         // console.log(e.code)
@@ -240,15 +235,15 @@ function renderPageView(page = g_currentPage) {
     let likeCount = g_pageView.querySelector('.page-like-count');
     // console.log(g_likes[page],page,g_currentPage);
 
-    likeCount.innerHTML = likes[0];
-    if (likes > 0) {
-    }
-    else {
-    }
+    // likeCount.innerHTML = likes[0];
+    // if (likes > 0) {
+    // }
+    // else {
+    // }
 
 
     if (g_sideNavActive) {
-        setTimeout(navSelect, 0);
+        setTimeout(sideSelect, 0);
     }
 }
 
@@ -513,7 +508,7 @@ function prev() {
 }
 
 function spin() {
-    navReset()
+    sideSearchReset()
     if (g_currentView == 'page') {
         renderPageView(g_pages.random())
     }
@@ -528,8 +523,6 @@ function spin() {
         g_currentSl = sl
         renderImageView()
     }
-
-    // navReset(page);
 }
 
 
@@ -538,18 +531,43 @@ function showCurrentPage() {
 }
 
 
+// Side navigation
+// Methods /////////
+// sideToggle() : Attched to side-toggle button on the page
+// sideOpen() : Opens sidebar.
+// sideClose() : Closes sidebar.
+// handlePageSearch() : Event handler for side search input.
+// createSideItems(): Based on value of side-search input, creates item list by applying filter on pages.
+//
+// sideSelect(): When side item is clicked, it inflates the pageView for the clicked item.
+// sideSearchReset(): clears the side-search input. Linked to cross button inside side-search button.
+
+
+
+
+
+function sideToggle() {
+    g_sideNavActive = !g_sideNavActive;
+    if (g_sideNavActive) {
+        sideOpen();
+    }
+    else {
+        sideClose();
+    }
+}
+
 function sideOpen() {
-    let side = document.querySelector('.side')
-    let sideToggleControl = document.querySelector('.side-toggle')
-    let adjusts = []
-    adjusts.push(document.querySelector('.page'))
-    adjusts.push(...document.querySelectorAll('.prev'))
+    let side = document.querySelector('.side');
+    let sideToggleControl = document.querySelector('.side-toggle');
+    let adjusts = [];
+    adjusts.push(document.querySelector('.page'));
+    adjusts.push(...document.querySelectorAll('.prev'));
     adjusts.forEach(item => {
         item.style.marginLeft = '225px';
     });
-    sideToggleControl.classList.add('active')
-    side.style.display = 'block'
-    navReset()
+    sideToggleControl.classList.add('active');
+    side.style.display = 'block';
+    handlePageSearch();
 }
 
 function sideClose() {
@@ -565,18 +583,19 @@ function sideClose() {
     })
 }
 
-
-function sideToggle() {
-    g_sideNavActive = !g_sideNavActive;
-    if (g_sideNavActive) {
-        sideOpen()
+function handlePageSearch() {
+    console.dir(pageSearch);
+    let val = pageSearch.value;
+    if (val.length == 0) {
+        document.querySelector('.search-icon').innerHTML = "&#128270;";
     }
     else {
-        sideClose()
+        document.querySelector('.search-icon').innerHTML = "&#10060";
     }
+    createSideItems(val);
 }
 
-function createNavItems(val = '') {
+function createSideItems(val = '') {
     g_navPages = g_pages.filter(item => {
         return item.includes(val)
     })
@@ -604,7 +623,7 @@ function createNavItems(val = '') {
 
 
 
-function navSelect() {
+function sideSelect() {
     let navCont = document.querySelector('.nav-items')
     let page = g_currentPage;
     let selected = navCont.querySelector('.nav-select');
@@ -618,10 +637,11 @@ function navSelect() {
     navItem.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
-function navReset() {
+
+
+function sideSearchReset() {
     document.querySelector('#page-search').value = "";
-    document.querySelector('.search-icon').innerHTML = 'search';
-    createNavItems()
+    handlePageSearch();
 }
 
 function zoom(value) {
@@ -663,15 +683,14 @@ function zoom(value) {
 }
 
 
-function pageLike(ele, val) {
+function pageLike(val) {
     let page = g_currentPage;
     val = parseInt(val);
-
     let likes = g_likes[page][0];
     likes += val;
     g_likes[page][0] = likes;
-    ele.parentElement.querySelector('.page-like-count').innerText = likes;
-    setLikes()
+    document.querySelector('.page-like-count').innerText = likes;
+    setLikes();
 }
 
 function imageLike(favicon) {

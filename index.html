@@ -7,21 +7,18 @@
     <link rel="stylesheet" href="CSS/test.css">
     <script src="JS/main.js" defer></script>
     <script src="JS/test.js" defer></script>
-    <!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> -->
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
 </head>
 
 
 <body>
     <header class="header">
-        <i class="material-icons pointer side-toggle" onclick="sideToggle()">&#xe8ef;</i>
+        <span class="side-toggle clickable " onclick="sideToggle()">&#9776;</i>
     </header>
 
     <div class="side">
         <div class="search-cont">
             <div class="searchbox">
-                <i class="material-icons pointer search-icon" onclick="navReset();">search</i>
+                <span class="search-icon clickable" onclick="sideSearchReset()">&#128270;</span>
                 <input type="text" id="page-search">
             </div>
         </div>
@@ -33,9 +30,8 @@
         <div class="main-view">
             <div class="top-controls">
                 <div class="zoom-controls">
-                    <i class="material-icons pointer" style="font-size:24px;"
-                        onclick="zoom(1)">remove_circle_outline</i>
-                    <i class="material-icons pointer" style="font-size:24px;" onclick="zoom(-1)">add_circle_outline</i>
+                    <span class="unicode-icon" onclick="zoom(1)">&#8854;</span>
+                    <span class="unicode-icon" onclick="zoom(-1)">&#8853;</span>
                 </div>
             </div>
             <div class="row image-row">
@@ -48,17 +44,17 @@
                     <p class="page-name"></p>
                 </div>
                 <div class="page-like">
-                    <i class="page-like-icon material-icons"">favorite</i>
-                    <i class=" pointer material-icons" onclick="pageLike(this,-1);">chevron_left</i>
+                    <span class="like-icon">&#10084;</span>
+                    <span class="like-change" onclick="pageLike(-1)">&#10092;</span>
                     <span class="page-like-count">0</span>
-                    <i class="pointer material-icons" onclick="pageLike(this,1);">chevron_right</i>
+                    <span class="like-change" onclick="pageLike(1)">&#10093;</span>
                 </div>
                 <div class="zoom-controls">
-                    <i class="material-icons pointer" style="font-size:24px;"
-                        onclick="zoom(1)">remove_circle_outline</i>
-                    <i class="material-icons pointer" style="font-size:24px;" onclick="zoom(-1)">add_circle_outline</i>
+                    <span class="unicode-icon" onclick="zoom(1)">&#8854;</span>
+                    <span class="unicode-icon" onclick="zoom(-1)">&#8853;</span>
                 </div>
-                <i class="material-icons pointer close" onclick="goBack()">close</i>
+                <span class="clickable  close" onclick="goBack()">&#9587;</span>
+
             </div>
             <div class="row image-row">
             </div>
@@ -78,11 +74,10 @@
                     <p class="image-sl"></p>
                 </div>
                 <div class="zoom-controls">
-                    <i class="material-icons pointer" style="font-size:24px;"
-                        onclick="zoom(1)">remove_circle_outline</i>
-                    <i class="material-icons pointer" style="font-size:24px;" onclick="zoom(-1)">add_circle_outline</i>
+                    <span class="unicode-icon" onclick="zoom(1)">&#8854;</span>
+                    <span class="unicode-icon" onclick="zoom(-1)">&#8853;</span>
                 </div>
-                <i class="material-icons pointer close" onclick="goBack()">close</i>
+            <span class="clickable  close" onclick="goBack()">&#9587;</span>
             </div>
             <div class="image-container">
             </div>
@@ -92,7 +87,6 @@
                 <a class="spin" onclick="spin()">&#10095;&#10095;</a>
             </div>
         </div>
-
     </div>
 
 
@@ -100,11 +94,3 @@
 </body>
 
 </html>
-
-<template id="temp-image-like">
-    <div class="image-like">
-        <i class=" pointer material-icons" onclick="imageLike(this,-1);">chevron_left</i>
-        <span class="imgae-like-count">0</span>
-        <i class="pointer material-icons" onclick="imageLike(this,1);">chevron_right</i>
-    </div>
-</template>
