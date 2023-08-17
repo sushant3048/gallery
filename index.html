@@ -11,85 +11,69 @@
 
 
 <body>
-    <header class="header">
-        <span class="side-toggle clickable " onclick="sideToggle()">&#9776;</i>
-    </header>
+    <div class="overlay">
+        <div class="overlay-top-row">
+            <span class="side-toggle clickable" onclick="sideToggle()">&#9776;</span>
+            <div class="horizontal-space">
+                <!-- horizontal separator -->
+            </div>
+            <div class="only-page-view">
+                <span class="page-id"></span>
+                <span class="like-icon">&#10084;</span>
+                <span class="like-change-left clickable" onclick="pageLike(-1)">&#10092;</span>
+                <span class="page-like-count">0</span>
+                <span class="like-change-right clickable" onclick="pageLike(1)">&#10093;</span>
+            </div>
+
+
+            <div class="horizontal-space">
+                <!-- horizontal separator -->
+            </div>
+
+            <span class="zoom-icon clickable" onclick="zoom(1)">&#8722;</span>
+            <span class="zoom-icon clickable" onclick="zoom(-1)">&#65291;</span>
+            <span class="clickable  close" onclick="goBack()">&#10005;</span>
+        </div>
+
+        <div class="overlay-nav-row">
+            <span class="prev clickable" onclick="prev()">&#10094;</span>
+            <div class="horizontal-space">
+                <!-- horizontal separator -->
+            </div>
+            <span class="next clickable" onclick="next()">&#10095;</span>
+            <span class="spin clickable" onclick="spin()">&#10095;&#10095;</span>
+        </div>
+    </div>
+
+
+
+    <div class="page">
+        <div class="main-view">
+            <div class="row image-row">
+            </div>
+        </div>
+
+        <div class="page-view">
+            <div class="row image-row">
+            </div>
+        </div>
+
+        <div class="image-view">
+            <div class="image-container">
+            </div>
+        </div>
+    </div>
 
     <div class="side">
         <div class="search-cont">
             <div class="searchbox">
-                <span class="search-icon clickable" onclick="sideSearchReset()">&#128270;</span>
+                <span class="search-icon" onclick="sideSearchReset()">&#128270;</span>
                 <input type="text" id="page-search">
             </div>
         </div>
-        <div class="nav-items">
+        <div class="nav-items-container">
         </div>
     </div>
-
-    <div class="page">
-        <div class="main-view">
-            <div class="top-controls">
-                <div class="zoom-controls">
-                    <span class="unicode-icon" onclick="zoom(1)">&#8854;</span>
-                    <span class="unicode-icon" onclick="zoom(-1)">&#8853;</span>
-                </div>
-            </div>
-            <div class="row image-row">
-            </div>
-        </div>
-        <!-- //////////////////////////////////////////////////////////////// -->
-        <div class="page-view">
-            <div class="top-controls">
-                <div class="page-id">
-                    <p class="page-name"></p>
-                </div>
-                <div class="page-like">
-                    <span class="like-icon">&#10084;</span>
-                    <span class="like-change" onclick="pageLike(-1)">&#10092;</span>
-                    <span class="page-like-count">0</span>
-                    <span class="like-change" onclick="pageLike(1)">&#10093;</span>
-                </div>
-                <div class="zoom-controls">
-                    <span class="unicode-icon" onclick="zoom(1)">&#8854;</span>
-                    <span class="unicode-icon" onclick="zoom(-1)">&#8853;</span>
-                </div>
-                <span class="clickable  close" onclick="goBack()">&#9587;</span>
-
-            </div>
-            <div class="row image-row">
-            </div>
-            <div class="controls">
-                <a class="prev" onclick="prev()">&#10094;</a>
-                <a class="next" onclick="next()">&#10095;</a>
-                <a class="spin" onclick="spin()">&#10095;&#10095;</a>
-            </div>
-
-        </div>
-
-        <!-- /////////////////////////////////////////////////////////////////////////////////// -->
-        <div class="image-view">
-            <div class="top-controls">
-                <div class="page-id">
-                    <p class="page-name"></p>
-                    <p class="image-sl"></p>
-                </div>
-                <div class="zoom-controls">
-                    <span class="unicode-icon" onclick="zoom(1)">&#8854;</span>
-                    <span class="unicode-icon" onclick="zoom(-1)">&#8853;</span>
-                </div>
-            <span class="clickable  close" onclick="goBack()">&#9587;</span>
-            </div>
-            <div class="image-container">
-            </div>
-            <div class="controls">
-                <a class="prev" onclick="prev()">&#10094;</a>
-                <a class="next" onclick="next()">&#10095;</a>
-                <a class="spin" onclick="spin()">&#10095;&#10095;</a>
-            </div>
-        </div>
-    </div>
-
-
 
 </body>
 

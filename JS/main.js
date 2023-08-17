@@ -135,10 +135,16 @@ function appEntry() {
     document.addEventListener('keydown', e => {
         // console.log(e.code)
         if (e.code == 'ArrowRight') {
-            next()
+            if (e.ctrlKey) {
+                spin();
+            }
+            else {
+                next();
+            }
+
         }
         else if (e.code == 'ArrowLeft') {
-            prev()
+            prev();
         }
     })
 
@@ -223,15 +229,10 @@ function renderPageView(page = g_currentPage) {
             renderImageView();
         })
         img.setAttribute('sl', i);
-        // img.innerHTML += `<div class="image-like">
-        //         <i class=" pointer material-icons" onclick="imageLike(this,-1,${i});">chevron_left</i>
-        //         <span class="imgae-like-count">${likes[i + 1]}</span>
-        //          <i class="pointer material-icons" onclick="imageLike(this,1,${i});">chevron_right</i>
-        //     </div>`
         a = i % g_pageCols;
         cols[a].appendChild(img);
     })
-    g_pageView.querySelector('.page-name').innerHTML = page;
+    document.querySelector('.page-id').innerHTML = page;
     let likeCount = g_pageView.querySelector('.page-like-count');
     // console.log(g_likes[page],page,g_currentPage);
 
@@ -248,9 +249,8 @@ function renderPageView(page = g_currentPage) {
 }
 
 var scaleFactor = 1;
+
 function renderImageView() {
-
-
     g_currentView = 'image';
 
     if (g_currentSl >= g_pageBuffer.length) g_currentSl = 0;
@@ -305,6 +305,11 @@ function renderImageView() {
         // Save scale and initial scale
         scaleFactor = w / nw;
         initialScaleFactor = scaleFactor;
+
+        // Since the image is absolutely positioned.
+        // It has to be centered initially too using translate.
+        // translate();
+        // Centering through flexbox works.
     }
 
 
@@ -436,11 +441,11 @@ function renderImageView() {
         img.style.top = `${posY}px`;
     }
 
+
+    if (g_sideNavActive) {
+        setTimeout(sideSelect, 0);
+    }
 }
-
-
-
-
 
 
 function createImage(obj) {
@@ -559,28 +564,17 @@ function sideToggle() {
 function sideOpen() {
     let side = document.querySelector('.side');
     let sideToggleControl = document.querySelector('.side-toggle');
-    let adjusts = [];
-    adjusts.push(document.querySelector('.page'));
-    adjusts.push(...document.querySelectorAll('.prev'));
-    adjusts.forEach(item => {
-        item.style.marginLeft = '225px';
-    });
-    sideToggleControl.classList.add('active');
-    side.style.display = 'block';
+    sideToggleControl.innerHTML = "&#10094"; // innerText does not work.
+    side.classList.add('open');
+    // UI changes are based on this class.
     handlePageSearch();
 }
 
 function sideClose() {
-    let side = document.querySelector('.side')
-    let sideToggleControl = document.querySelector('.side-toggle')
-    side.style.display = 'none'
-    sideToggleControl.classList.remove('active')
-    let adjusts = []
-    adjusts.push(document.querySelector('.page'))
-    adjusts.push(...document.querySelectorAll('.prev'))
-    adjusts.forEach(item => {
-        item.style.marginLeft = '0px';
-    })
+    let side = document.querySelector('.side');
+    let sideToggleControl = document.querySelector('.side-toggle');
+    sideToggleControl.innerHTML = "&#9776"; // innerText does not work.
+    side.classList.remove('open');
 }
 
 function handlePageSearch() {
@@ -599,7 +593,7 @@ function createSideItems(val = '') {
     g_navPages = g_pages.filter(item => {
         return item.includes(val)
     })
-    let navItems = document.querySelector('.nav-items');
+    let navItems = document.querySelector('.nav-items-container');
     navItems.innerHTML = "";
     g_navPages.forEach(function (item, i) {
         let navItem = document.createElement('div');
@@ -624,14 +618,13 @@ function createSideItems(val = '') {
 
 
 function sideSelect() {
-    let navCont = document.querySelector('.nav-items')
+    let navCont = document.querySelector('.nav-items-container')
     let page = g_currentPage;
     let selected = navCont.querySelector('.nav-select');
     if (selected) {
         selected.classList.remove('nav-select')
     }
     let sl = g_navPages.indexOf(page);
-    console.log(sl)
     let navItem = navCont.querySelectorAll('.nav-item')[sl];
     navItem.classList.add('nav-select');
     navItem.scrollIntoView({ behavior: "smooth", block: "center" });
